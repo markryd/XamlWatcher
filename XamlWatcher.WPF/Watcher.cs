@@ -29,8 +29,19 @@ namespace XamlWatcher.WPF
 
         public Action<ContentControl> OnRefreshed { get; set; }
 
+        public Action<string> OnLog { get; set; }
+
+        private void Log(string message)
+        {
+            if (OnLog == null)
+                return;
+
+            OnLog(message);
+        }
+
         void watcher_Changed(object sender, FileSystemEventArgs e)
         {
+            Log(String.Format("File changed {0}", e.FullPath));
             var d = Application.Current.Dispatcher;
             if (d.CheckAccess())
                 try
@@ -62,17 +73,23 @@ namespace XamlWatcher.WPF
         {
             Thread.Sleep(100); //give things a little time to finish saving, although we'll wait in the read method
 
+            Log(String.Format("Reading XAML from {0}", path));
+
             var xml = ReadXaml(path);
+
+            Log("Getting view type");
 
             var type = GetViewType(xml);
 
             if (type != null)
             {
+                Log(String.Format("Processing view type {0}", type.FullName));
                 ProcessView(xml, type);
             }
 
             if (xml.Root.Name.LocalName == "ResourceDictionary")
             {
+                Log("Processing Resource Dictionary");
                 ProcessResourceDictionary(xml);
             }
         }
@@ -85,14 +102,19 @@ namespace XamlWatcher.WPF
 
         private void ProcessView(XDocument xml, Type type)
         {
+            Log("Getting context");
             var context = GetContextWithTypeMappings(xml, type);
 
+            Log("Building holder");
             var holder = BuildHolderDocumentWithNamespaces(xml);
 
+            Log("Adding resources to holder");
             AddResourcesToHolder(xml, holder);
 
+            Log("Adding view contents to holder");
             AddViewContentsToHolder(xml, holder);
 
+            Log("Updating instances of view");
             UpdateLiveInstancesOfTheView(type, holder, context);
         }
 
@@ -113,6 +135,7 @@ namespace XamlWatcher.WPF
                 var content = XamlReader.Load(stream, context) as DependencyObject;
                 tb.Content = content;
 
+                Log("Updating instance of view");
                 tb.UpdateLayout();
 
                 if (OnRefreshed != null)
@@ -177,7 +200,7 @@ namespace XamlWatcher.WPF
             return className == null ? null : Type.GetType(className.Value);
         }
 
-        private static XDocument ReadXaml(string path)
+        private XDocument ReadXaml(string path)
         {
             var read = false;
             var xaml = "";
