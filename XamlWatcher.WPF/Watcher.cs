@@ -237,6 +237,9 @@ namespace XamlWatcher.WPF
         {
             if (depObj == null) yield break;
 
+            if (depObj.GetType() == type)
+                yield return depObj;
+
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
                 var child = VisualTreeHelper.GetChild(depObj, i);
