@@ -76,11 +76,11 @@ namespace XamlWatcher.WPF
 
             Log(String.Format("Reading XAML from {0}", path));
 
-            var xml = ReadXaml(path);
+            var xml = Helpers.ReadXaml(path);
 
             Log("Getting view type");
 
-            var type = GetViewType(xml);
+            var type = Helpers.GetViewType(xml);
 
             if (type != null)
             {
@@ -118,7 +118,7 @@ namespace XamlWatcher.WPF
 
         private void UpdateLiveInstancesOfTheView(Type type, XDocument holder, ParserContext context)
         {
-            foreach (var tb in FindVisualChildren(type, Application.Current.MainWindow).OfType<ContentControl>())
+            foreach (var tb in Helpers.FindVisualChildren(type, Application.Current.MainWindow).OfType<ContentControl>())
             {
                 Stream stream = new MemoryStream(); // Create a stream
                 holder.Save(stream); // Save XDocument into the stream
@@ -132,69 +132,6 @@ namespace XamlWatcher.WPF
 
                 if (OnRefreshed != null)
                     OnRefreshed(tb);
-            }
-        }
-
-        private Type GetViewType(XDocument xml)
-        {
-            XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
-            var className = xml.Root.Attributes(x + "Class").SingleOrDefault();
-
-            return className == null ? null : FindType(className.Value);
-        }
-
-        private static Type FindType(string fullName)
-        {
-            return
-                AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic)
-                    .SelectMany(a => a.GetTypes())
-                    .FirstOrDefault(t => t.FullName.Equals(fullName));
-        }
-
-        private XDocument ReadXaml(string path)
-        {
-            var read = false;
-            var xaml = "";
-            var count = 0;
-            while (!read)
-                try
-                {
-                    xaml = File.ReadAllText(path);
-                    read = true;
-                }
-                catch (Exception) //if the file is still saving it will be locked, so retry a few times
-                {
-                    count++;
-                    Thread.Sleep(100);
-                    if (count > 20)
-                    {
-                        throw;
-                    }
-                }
-
-            return XDocument.Parse(xaml);
-        }
-
-        private static IEnumerable<DependencyObject> FindVisualChildren(Type type, DependencyObject depObj)
-        {
-            if (depObj == null) yield break;
-
-            if (depObj.GetType() == type)
-                yield return depObj;
-
-            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-            {
-                var child = VisualTreeHelper.GetChild(depObj, i);
-                if (child != null && child.GetType() == type)
-                {
-                    yield return child;
-                }
-
-                foreach (var childOfChild in FindVisualChildren(type, child))
-                {
-                    yield return childOfChild;
-                }
             }
         }
     }

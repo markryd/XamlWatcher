@@ -43,6 +43,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers.cs" />
     <Compile Include="Holder.cs" />
     <Compile Include="ParserContextBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
