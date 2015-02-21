@@ -33,5 +33,5 @@ XamlWatcher won't work *at all* on views where you have events hooked up in the 
 <Button Click="Button_Clicked"/> <!-- XamlWatcher won't work at all if you do this -->
 ```
 If you're doing cleanish MVVM this shouldn't be too much of a problem. 
-
+ 
 ![](https://ci.appveyor.com/api/projects/status/github/markryd/XamlWatcher?branch=master&svg=true)
