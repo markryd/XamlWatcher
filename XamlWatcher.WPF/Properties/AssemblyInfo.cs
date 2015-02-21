@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("XamlWatcher.WPF")]
 [assembly: AssemblyDescription("XamlWatcher WPF")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("rydware")]
+[assembly: AssemblyCompany("Mark Rydstrom")]
 [assembly: AssemblyProduct("XamlWatcher.WPF")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]

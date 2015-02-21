@@ -101,28 +101,19 @@ namespace XamlWatcher.WPF
             Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
         }
 
-        private void ProcessView(XDocument xml, Type type)
+        private void ProcessView(XDocument xml, Type viewType)
         {
             Log("Getting context");
-            var context = GetContextWithTypeMappings(xml, type);
+            var context = ParserContextBuilder.Build(xml, viewType);
 
             Log("Building holder");
-            var holder = BuildHolderDocumentWithNamespaces(xml);
-
-            Log("Adding resources to holder");
-            AddResourcesToHolder(xml, holder);
-
-            Log("Adding view contents to holder");
-            AddViewContentsToHolder(xml, holder);
+            var holder = new Holder(xml)
+                            .AddResourcesFrom(xml)
+                            .AddContentsFrom(xml)
+                            .Document;
 
             Log("Updating instances of view");
-            UpdateLiveInstancesOfTheView(type, holder, context);
-        }
-
-        private static void AddViewContentsToHolder(XDocument xml, XDocument holder)
-        {
-            //.Last is pretty dodgy...
-            holder.Root.Add(xml.Root.Elements().Last());
+            UpdateLiveInstancesOfTheView(viewType, holder, context);
         }
 
         private void UpdateLiveInstancesOfTheView(Type type, XDocument holder, ParserContext context)
@@ -142,55 +133,6 @@ namespace XamlWatcher.WPF
                 if (OnRefreshed != null)
                     OnRefreshed(tb);
             }
-        }
-
-        private static void AddResourcesToHolder(XDocument xml, XDocument holder)
-        {
-            var resource = xml.Root.Elements().SingleOrDefault(z => z.Name.LocalName.EndsWith(".Resources"));
-            if (resource != null)
-            {
-                var targetResource = holder.Root.Elements().Single(z => z.Name.LocalName.EndsWith(".Resources"));
-                foreach (var element in resource.Elements())
-                {
-                    targetResource.Add(element);
-                }
-            }
-        }
-
-        private static XDocument BuildHolderDocumentWithNamespaces(XDocument xml)
-        {
-            var sb = new StringBuilder();
-            sb.Append("<ContentControl ");
-
-            foreach (var att in xml.Root.Attributes().Where(s => s.IsNamespaceDeclaration))
-            {
-                sb.Append(" ");
-                sb.Append(att);
-            }
-
-            sb.Append(" ><ContentControl.Resources></ContentControl.Resources></ContentControl>");
-
-            var holder = XDocument.Parse(sb.ToString());
-            return holder;
-        }
-
-        private static ParserContext GetContextWithTypeMappings(XDocument xml, Type type)
-        {
-            var context = new ParserContext { XamlTypeMapper = new XamlTypeMapper(new string[] { }) };
-            foreach (var att in xml.Root.Attributes().Where(s => s.IsNamespaceDeclaration))
-            {
-                //any namespace with no assemebly (ie, they are in the view's assembly)
-                //must be added to the XamlTypeMapper
-                if (att.ToString().Contains("clr-namespace") && !att.ToString().Contains(";assembly="))
-                {
-                    //namespaces look like: xmlns:tools="clr-namespace:NextGen.Client.Features.Shared.Tools"
-                    var s = att.ToString();
-                    var nameSpace = s.Split(new[] { ':', '"' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                    var alias = s.Split(new[] { '"' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                    context.XamlTypeMapper.AddMappingProcessingInstruction(alias, nameSpace, type.Assembly.FullName);
-                }
-            }
-            return context;
         }
 
         private Type GetViewType(XDocument xml)
