@@ -192,12 +192,21 @@ namespace XamlWatcher.WPF
             return context;
         }
 
-        private static Type GetViewType(XDocument xml)
+        private Type GetViewType(XDocument xml)
         {
             XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
             var className = xml.Root.Attributes(x + "Class").SingleOrDefault();
 
-            return className == null ? null : Type.GetType(className.Value);
+            return className == null ? null : FindType(className.Value);
+        }
+
+        private static Type FindType(string fullName)
+        {
+            return
+                AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .SelectMany(a => a.GetTypes())
+                    .FirstOrDefault(t => t.FullName.Equals(fullName));
         }
 
         private XDocument ReadXaml(string path)
