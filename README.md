@@ -1,6 +1,8 @@
 # XamlWatcher
 XamlWatcher is a library that lets you edit the XAML of a WPF app, and have the running instance of the app update each time you save your XAML.
 
+![](http://i.imgur.com/nYIxVpF.gif)
+
 It is designed with MVVM apps in mind and will work with views and resource dictionaries. With a view the content of the view and the bindings will refresh. With resource dictionaries anything using a `DynamicResource` from the dictionary will update (of course if you are using `StaticResource` in a view you can edit that first to make it a `DynamicResource` then edit the resource dictionary.
 
 # Usage
