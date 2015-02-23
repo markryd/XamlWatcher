@@ -23,6 +23,7 @@ namespace XamlWatcher.WPF
                 EnableRaisingEvents = true
             };
             watcher.Changed += watcher_Changed;
+            watcher.Renamed += watcher_Changed;
         }
 
         public Action<Exception> OnError { get; set; }
