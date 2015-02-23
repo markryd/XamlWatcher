@@ -10,7 +10,7 @@ namespace XamlWatcher.Tests
         [Test]
         public void BuilderMustBeAbleToParseLocalTypes()
         {
-            var source = XDocument.Parse(Data.SourceXaml);
+            var source = XDocument.Parse(Data.XamlWithNamespacedContent);
             var context = ParserContextBuilder.Build(source, GetType()); //normally is the name of the view so we can grab it's assembly
 
             var type = context.XamlTypeMapper.GetType("clr-namespace:XamlWatcher.Tests", "LocalButton");

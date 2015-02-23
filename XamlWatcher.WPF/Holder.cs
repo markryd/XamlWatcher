@@ -1,17 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace XamlWatcher.WPF
 {
-    public class Holder
+    public static class HolderBuilder
     {
-        private readonly XDocument _document;
+        public static XDocument Build(XDocument xml)
+        {
+            Logger.Log("Building holder");
 
-        public Holder(XDocument xml)
+            var document = BuildBaseDocument(xml);
+            document.AddResourcesFrom(xml);
+            document.AddContentsFrom(xml);
+
+            return document;
+        }
+
+        private static XDocument BuildBaseDocument(XDocument xml)
         {
             var sb = new StringBuilder();
             sb.Append("<ContentControl ");
@@ -24,38 +30,29 @@ namespace XamlWatcher.WPF
 
             sb.Append(" ><ContentControl.Resources></ContentControl.Resources></ContentControl>");
 
-            _document = XDocument.Parse(sb.ToString());
+            return XDocument.Parse(sb.ToString());
         }
 
-        public XDocument Document
-        {
-            get { return _document; }
-        }
-
-        public Holder AddResourcesFrom(XDocument xml)
+        private static void AddResourcesFrom(this XDocument holder, XDocument xml)
         {
             var resource = xml.Root.Elements().SingleOrDefault(z => z.Name.LocalName.EndsWith(".Resources"));
             if (resource != null)
             {
-                var targetResource = _document.Root.Elements().Single(z => z.Name.LocalName == "ContentControl.Resources");
+                var targetResource = holder.Root.Elements().Single(z => z.Name.LocalName == "ContentControl.Resources");
                 foreach (var element in resource.Elements())
                 {
                     targetResource.Add(element);
                 }
             }
-
-            return this;
         }
 
-        public Holder AddContentsFrom(XDocument xml)
+        private static void AddContentsFrom(this XDocument holder, XDocument xml)
         {
             var content = xml.Root.Elements().FirstOrDefault(x => x.Name.LocalName.EndsWith(".Resources") == false);
             if (content != null)
             {
-                _document.Root.Add(content);
+                holder.Root.Add(content);
             }
-
-            return this;
         }
     }
 }

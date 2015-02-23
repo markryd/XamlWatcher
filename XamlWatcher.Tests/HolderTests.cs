@@ -13,43 +13,47 @@ namespace XamlWatcher.Tests
 {
     public class HolderTests
     {
-        private Holder _holder;
-        private XDocument _source;
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void WeShouldBeAbleToHandleEverything()
         {
-            _source = XDocument.Parse(Data.SourceXaml);
-            _holder = new Holder(_source);
+            var holder = HolderBuilder.Build(XDocument.Parse(Data.XamlWithEverything));
+
+            holder.Document.ToString(); //make sure this doesn't throw
         }
 
         [Test]
-        public void HolderDocumentIsAContentControlWithEmptyResourcesAndNamespaces()
+        public void ResourcesShouldBeCopied()
         {
-            _holder.Document.ToString(); //make sure this doesn't throw
-            _holder.Document.Root.Name.LocalName.Should().Be("ContentControl");
-            _holder.Document.Root.Elements().Single().Name.LocalName.Should().Be("ContentControl.Resources");
+            var holder = HolderBuilder.Build(XDocument.Parse(Data.XamlWithResources));
 
-            //check namespaces
-            _holder.Document.Root.Attributes().Count().Should().Be(3);
-            _holder.Document.Root.Attributes().All(x => x.IsNamespaceDeclaration).Should().BeTrue();
-        }
-
-        [Test]
-        public void AddResourcesFromShouldCopyAllResources()
-        {
-            _holder.AddResourcesFrom(_source);
-
-            _holder.Document.ToString(); //make sure this doesn't throw
-            var holderResources = _holder.Document.Root.Elements().Single(z => z.Name.LocalName == "ContentControl.Resources");
+            holder.Document.ToString(); //make sure this doesn't throw
+            var holderResources = holder.Document.Root.Elements().Single(z => z.Name.LocalName == "ContentControl.Resources");
             holderResources.Elements().Count().Should().Be(2);
         }
 
         [Test]
-        public void AddContentFromShouldAddTheContent()
+        public void ContentShouldBeCopied()
         {
-            _holder.AddContentsFrom(_source);
-            _holder.Document.Root.Elements().FirstOrDefault(x => x.Name.LocalName == "Grid").Should().NotBeNull();
+            var holder = HolderBuilder.Build(XDocument.Parse(Data.XamlWithContent));
+
+            holder.Document.Root.Elements().FirstOrDefault(x => x.Name.LocalName == "Grid").Should().NotBeNull();
+        }
+
+        [Test]
+        public void NamspacedContentShouldBeCopied()
+        {
+            var holder = HolderBuilder.Build(XDocument.Parse(Data.XamlWithNamespacedContent));
+
+            holder.Document.Root.Elements().FirstOrDefault(x => x.Name.LocalName == "LocalButton").Should().NotBeNull();
+        }
+
+        [Test]
+        public void NamespacesShouldBeCopied()
+        {
+            var holder = HolderBuilder.Build(XDocument.Parse(Data.XamlWithNamespaces));
+
+            holder.Document.Root.Attributes().Count().Should().Be(3);
+            holder.Document.Root.Attributes().All(x => x.IsNamespaceDeclaration).Should().BeTrue();
         }
     }
 }

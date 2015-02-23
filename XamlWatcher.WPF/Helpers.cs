@@ -13,6 +13,7 @@ namespace XamlWatcher.WPF
     {
         public static Type GetViewType(XDocument xml)
         {
+            Logger.Log("Getting view type");
             XNamespace x = "http://schemas.microsoft.com/winfx/2006/xaml";
             var className = xml.Root.Attributes(x + "Class").SingleOrDefault();
 
@@ -30,6 +31,7 @@ namespace XamlWatcher.WPF
 
         public static XDocument ReadXaml(string path)
         {
+            Logger.Log(String.Format("Reading XAML from {0}", path));
             var read = false;
             var xaml = "";
             var count = 0;

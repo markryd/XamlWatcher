@@ -9,6 +9,8 @@ namespace XamlWatcher.WPF
     {
         public static ParserContext Build(XDocument xml, Type type)
         {
+            Logger.Log("Getting context");
+
             var context = new ParserContext { XamlTypeMapper = new XamlTypeMapper(new string[] { }) };
             foreach (var att in xml.Root.Attributes().Where(s => s.IsNamespaceDeclaration))
             {

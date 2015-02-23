@@ -21,7 +21,8 @@ namespace XamlWatcher.Example
             _watcher = new Watcher(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName)
             {
                 OnError = Console.WriteLine, 
-                OnLog = Console.WriteLine
+                OnLog = Console.WriteLine,
+                OnRefreshed = v => Console.WriteLine(String.Format("View refresh {0}", v.GetType().FullName))
             };
         }
     }
