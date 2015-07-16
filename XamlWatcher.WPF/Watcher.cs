@@ -105,20 +105,23 @@ namespace XamlWatcher.WPF
         private void UpdateLiveInstancesOfTheView(Type type, XDocument holder, ParserContext context)
         {
             Logger.Log("Updating instances of view");
-            foreach (var tb in Helpers.FindVisualChildren(type, Application.Current.MainWindow).OfType<ContentControl>())
+            foreach (var window in Application.Current.Windows.OfType<Window>())
             {
-                var stream = new MemoryStream(); // Create a stream
-                holder.Save(stream); // Save XDocument into the stream
-                stream.Position = 0; // Rewind the stream ready to read from it elsewhere
+                foreach (var tb in Helpers.FindVisualChildren(type, window).OfType<ContentControl>())
+                {
+                    var stream = new MemoryStream(); // Create a stream
+                    holder.Save(stream); // Save XDocument into the stream
+                    stream.Position = 0; // Rewind the stream ready to read from it elsewhere
 
-                var content = XamlReader.Load(stream, context) as DependencyObject;
-                tb.Content = content;
+                    var content = XamlReader.Load(stream, context) as DependencyObject;
+                    tb.Content = content;
 
-                Logger.Log("Updating instance of view");
-                tb.UpdateLayout();
+                    Logger.Log("Updating instance of view");
+                    tb.UpdateLayout();
 
-                if (OnRefreshed != null)
-                    OnRefreshed(tb);
+                    if (OnRefreshed != null)
+                        OnRefreshed(tb);
+                }
             }
         }
     }
