@@ -30,6 +30,8 @@ namespace XamlWatcher.WPF
 
         public Action<ContentControl> OnRefreshed { private get; set; }
 
+        public Action<Page> OnPageRefreshed { private get; set; }
+
         public Action<string> OnLog
         {
             set { Logger.OnLog = value; }
@@ -107,7 +109,8 @@ namespace XamlWatcher.WPF
             Logger.Log("Updating instances of view");
             foreach (var window in Application.Current.Windows.OfType<Window>())
             {
-                foreach (var tb in Helpers.FindVisualChildren(type, window).OfType<ContentControl>())
+                var children = Helpers.FindVisualChildren(type, window).ToList();
+                foreach (var tb in children.OfType<ContentControl>())
                 {
                     var stream = new MemoryStream(); // Create a stream
                     holder.Save(stream); // Save XDocument into the stream
@@ -121,6 +124,22 @@ namespace XamlWatcher.WPF
 
                     if (OnRefreshed != null)
                         OnRefreshed(tb);
+                }
+
+                foreach (var tb in children.OfType<Page>())
+                {
+                    var stream = new MemoryStream(); // Create a stream
+                    holder.Save(stream); // Save XDocument into the stream
+                    stream.Position = 0; // Rewind the stream ready to read from it elsewhere
+
+                    var content = XamlReader.Load(stream, context) as DependencyObject;
+                    tb.Content = content;
+
+                    Logger.Log("Updating instance of view");
+                    tb.UpdateLayout();
+
+                    if (OnPageRefreshed != null)
+                        OnPageRefreshed(tb);
                 }
             }
         }
