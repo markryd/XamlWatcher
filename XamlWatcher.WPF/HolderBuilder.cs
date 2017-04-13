@@ -48,7 +48,7 @@ namespace XamlWatcher.WPF
 
         private static void AddContentsFrom(this XDocument holder, XDocument xml)
         {
-            var content = xml.Root.Elements().FirstOrDefault(x => x.Name.LocalName.EndsWith(".Resources") == false);
+            var content = xml.Root.Elements().FirstOrDefault(x => x.Name.LocalName.EndsWith(".Resources") == false && x.Name.LocalName.EndsWith(".InputBindings") == false);
             if (content != null)
             {
                 holder.Root.Add(content);

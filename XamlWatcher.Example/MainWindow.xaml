@@ -8,10 +8,15 @@
             <Setter Property="Height" Value="50"/>
             <Setter Property="Width" Value="200"/>
         </Style>
-        </Window.Resources>
-        <StackPanel>
-            <Button Content="Button 1" Background="Green"/>
-            <Button Content="Button 2" Background="Blue"/>
-            <Button Content="Button 3" Background="Red"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="B"
+                    Modifiers="Control" 
+                    Command="ApplicationCommands.Open" />
+    </Window.InputBindings>
+    <StackPanel>
+        <Button Content="Button 1" Background="Green"/>
+        <Button Content="Button 2" Background="Blue"/>
+        <Button Content="Button 3" Background="Red"/>
     </StackPanel>
 </Window>

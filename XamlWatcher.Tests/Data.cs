@@ -9,6 +9,11 @@ namespace XamlWatcher.Tests
             xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             xmlns:local=""clr-namespace:XamlWatcher.Tests"">
             <!--Comment-->
+             <Window.InputBindings>
+                <KeyBinding Key=""B""
+                            Modifiers=""Control"" 
+                            Command=""ApplicationCommands.Open"" />
+            </Window.InputBindings>
             <Window.Resources>
                 <Style TargetType=""Button"" x:Key=""First""/>
                 <Style TargetType=""Button"" x:Key=""Second""/>
